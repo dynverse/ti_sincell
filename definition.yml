@@ -1,6 +1,6 @@
 id: sincell
-docker_repository: dynverse/dynmethods:sincell
-container_url: https://github.com/dynverse/dynmethods/tree/master/containers/sincell
+docker_repository: dynverse/ti_sincell
+container_url: https://github.com/dynverse/ti_sincell
 name: Sincell
 type: algorithm
 platform: R
