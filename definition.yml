@@ -1,5 +1,6 @@
 id: sincell
 docker_repository: dynverse/ti_sincell
+singularity_collection: 1579
 container_url: https://github.com/dynverse/ti_sincell
 name: Sincell
 type: algorithm
