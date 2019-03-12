@@ -1,3 +1,7 @@
+#!/usr/local/bin/Rscript
+
+task <- dyncli::main()
+
 library(jsonlite)
 library(readr)
 library(dplyr)
@@ -8,16 +12,8 @@ library(sincell)
 #   ____________________________________________________________________________
 #   Load data                                                               ####
 
-data <- read_rds("/ti/input/data.rds")
-params <- jsonlite::read_json("/ti/input/params.json")
-
-#' @examples
-#' data <- dyntoy::generate_dataset(id = "test", num_cells = 300, num_features = 300, model = "linear") %>% c(., .$prior_information)
-#' params <- yaml::read_yaml("containers/sincell/definition.yml")$parameters %>%
-#'   {.[names(.) != "forbidden"]} %>%
-#'   map(~ .$default)
-
-expression <- data$expression
+expression <- as.matrix(task$expression)
+params <- task$params
 
 #   ____________________________________________________________________________
 #   Infer trajectory                                                        ####
@@ -81,15 +77,11 @@ while (length(deg) > 10 && mean(deg <= 1) > params$pct_leaf_node_cutoff && any(d
 }
 to_keep <- setNames(rownames(expression) %in% names(igraph::V(gr)), rownames(expression))
 
-# return output
-output <- lst(
-  cell_ids = rownames(expression),
-  cell_graph,
-  to_keep,
-  timings = checkpoints
-)
-
 #   ____________________________________________________________________________
 #   Save output                                                             ####
 
-write_rds(output, "/ti/output/output.rds")
+output <- dynwrap::wrap_data(cell_ids = rownames(expression)) %>%
+  dynwrap::add_cell_graph(cell_graph = cell_graph, to_keep = to_keep) %>%
+  dynwrap::add_timings(timings = checkpoints)
+
+dyncli::write_output(output, task$output)

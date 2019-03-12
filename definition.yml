@@ -1,26 +1,47 @@
-id: sincell
-docker_repository: dynverse/ti_sincell
-singularity_collection: 1579
-container_url: https://github.com/dynverse/ti_sincell
-name: Sincell
-source: tool
-platform: R
-doi: 10.1093/bioinformatics/btv368
-google_scholar_cluster_id: '15532374725723489101'
-trajectory_types:
-- linear
-- bifurcation
-- convergence
-- multifurcation
-- tree
-topology_inference: free
-license: GPL (>= 2)
-preprint_date: '2015-01-27'
-publication_date: '2015-06-22'
-code_url: https://github.com/Cortalak/MCA_Sincell_0
+method:
+  id: sincell
+  name: Sincell
+  tool_id: sincell
+  source: tool
+  platform: R
+  url: https://github.com/Cortalak/MCA_Sincell_0
+  license: GPL (>= 2)
+  authors:
+  - given: Antonio
+    family: Rausell
+    email: antonio.rausell@institutimagine.org
+    github: Cortalak
+  - given: Miguel
+    family: Julia
+    email: migueljuliamolina@gmail.com
+
+
+manuscript:
+  doi: 10.1093/bioinformatics/btv368
+  google_scholar_cluster_id: '15532374725723489101'
+  preprint_date: '2015-01-27'
+  publication_date: '2015-06-22'
+
+container:
+  url: https://github.com/dynverse/ti_sincell
+  docker: dynverse/ti_sincell
+
+wrapper:
+  type: cell_graph
+  topology_inference: free
+  trajectory_types:
+  - linear
+  - bifurcation
+  - convergence
+  - multifurcation
+  - tree
+  example: /code/example.R
+  input_required:
+  - expression
+
 parameters:
-  distance_method:
-    type: discrete
+  - id: distance_method
+    type: character
     default: euclidean
     values:
     - euclidean
@@ -35,8 +56,8 @@ parameters:
       (method="pearson") or Spearman (method="spearman") correlation coefficients,
       and distance based on Mutual Information (method="MI"). Intervals used to assess
       Mutual Information are indicated in the parameter 'bins'.
-  dimred_method:
-    type: discrete
+  - id: dimred_method
+    type: character
     default: none
     values:
     - none
@@ -57,8 +78,8 @@ parameters:
       approximates the likelihood. The user should be aware that this is a less accurate
       version of t-SNE than e.g. the one used as basis of viSNE (Amir,E.D. et al.
       2013, Nat Biotechnol 31, 545-552).'
-  clust.method:
-    type: discrete
+  - id: clust.method
+    type: character
     default: max.distance
     values:
     - max.distance
@@ -96,38 +117,44 @@ parameters:
       (= WPGMC) or \"centroid\" (= UPGMC). Clusters are obtained by cutting the tree
       produced by hclust with function cutree with a desired number of groups indicated
       in parameter \"num.clusters\" \n\n"
-  mutual:
+  - id: mutual
     type: logical
     default: yes
     description: |2
 
       If clust.method="knn" and "mutual=TRUE", Unsupervised K-Mutual Nearest Neighbours (K-MNN) clustering is performed, that is: only reciprocal k nearest neighbors are connected.
-  max.distance:
+  - id: max.distance
     type: numeric
     default: 0.0e+00
-    upper: 5.0
-    lower: 0.0e+00
+    distribution:
+      type: uniform
+      upper: 5.0
+      lower: 0.0e+00
     description: |2
 
       in max.distance algorithm, select up to which distance the points will be linked
-  k:
+  - id: k
     type: integer
     default: 3
-    upper: 99
-    lower: 1
+    distribution:
+      type: uniform
+      upper: 99
+      lower: 1
     description: |2
 
       If clust.method="knn", k is an integer specifying the number of nearest neighbors to consider in K-NN and K-KNN
-  shortest.rank.percent:
+  - id: shortest.rank.percent
     type: numeric
     default: 10.0
-    upper: 100.0
-    lower: 0.0e+00
+    distribution:
+      type: uniform
+      upper: 100.0
+      lower: 0.0e+00
     description: |2
 
       in percent algorithm, select the percent of shortest distances will be represented as links
-  graph.algorithm:
-    type: discrete
+  - id: graph.algorithm
+    type: character
     default: MST
     values:
     - MST
@@ -136,41 +163,28 @@ parameters:
     description: "\nGraph building algorithm to be used: the Minimum Spanning Tree
       \n(graph.algorithm=\"MST\"), the Maximum Similarity Spanning Tree \n(graph.algorithm=\"SST\")
       and the Iterative Mutual Clustering Graph \n(graph.algorithm=\"IMC\").\n"
-  graph.using.cells.clustering:
+  - id: graph.using.cells.clustering
     type: logical
     default: no
     description: |2
 
       If graph.using.cells.clustering=TRUE and graph.algorithm="MST" or graph.algorithm="MST", a precalculated clustering of cells is used. The clustering of cells is taken from SincellObject$cellsClustering as calculated by function sc_clusterObj().
-  k_imc:
+  - id: k_imc
     type: integer
     default: 3
-    upper: 99
-    lower: 1
+    distribution:
+      type: uniform
+      upper: 99
+      lower: 1
     description: If IMC algorithm is selected, the number of nearest neighbors used
       in the underlying K-Mutual Nearest Neighbour (K-MNN) algorithm is set to k.
-  pct_leaf_node_cutoff:
+  - id: pct_leaf_node_cutoff
     type: numeric
     default: 0.5
-    upper: 0.8
-    lower: 0.01
+    distribution:
+      type: uniform
+      upper: 0.8
+      lower: 0.01
     description: Leaf nodes are iteratively removed until the percentage of leaf nodes
       is below the given cutoff. Removed nodes are projected to their closest neighbour.
       This is to constrain the number of milestones being created.
-input:
-  format: rds
-  required: expression
-output:
-  format: rds
-  outputs:
-  - cell_graph
-  - timings
-wrapper_type: cell_graph
-authors:
-- given: Antonio
-  family: Rausell
-  email: antonio.rausell@institutimagine.org
-  github: Cortalak
-- given: Miguel
-  family: Julia
-  email: migueljuliamolina@gmail.com
