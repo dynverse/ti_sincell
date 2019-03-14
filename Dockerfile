@@ -4,6 +4,6 @@ ARG GITHUB_PAT
 
 RUN R -e 'devtools::install_cran("sincell")'
 
-COPY definition.yml run.R example.h5 /code/
+COPY definition.yml run.R example.sh /code/
 
 ENTRYPOINT ["/code/run.R"]
