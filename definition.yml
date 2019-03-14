@@ -35,9 +35,7 @@ wrapper:
   - convergence
   - multifurcation
   - tree
-  example: /code/example.R
-  input_required:
-  - expression
+  input_required: expression
 
 parameters:
   - id: distance_method
