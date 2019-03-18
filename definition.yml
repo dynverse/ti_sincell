@@ -118,39 +118,31 @@ parameters:
   - id: mutual
     type: logical
     default: yes
-    description: |2
-
-      If clust.method="knn" and "mutual=TRUE", Unsupervised K-Mutual Nearest Neighbours (K-MNN) clustering is performed, that is: only reciprocal k nearest neighbors are connected.
+    description: 'If clust.method="knn" and "mutual=TRUE", Unsupervised K-Mutual Nearest Neighbours (K-MNN) clustering is performed, that is only reciprocal k nearest neighbors are connected'
   - id: max.distance
     type: numeric
-    default: 0.0e+00
+    default: 0
     distribution:
       type: uniform
-      upper: 5.0
-      lower: 0.0e+00
-    description: |2
-
-      in max.distance algorithm, select up to which distance the points will be linked
+      lower: 0
+      upper: 5
+    description: 'in max.distance algorithm, select up to which distance the points will be linked'
   - id: k
     type: integer
     default: 3
     distribution:
       type: uniform
-      upper: 99
       lower: 1
-    description: |2
-
-      If clust.method="knn", k is an integer specifying the number of nearest neighbors to consider in K-NN and K-KNN
+      upper: 99
+    description: 'If clust.method="knn", k is an integer specifying the number of nearest neighbors to consider in K-NN and K-KNN'
   - id: shortest.rank.percent
     type: numeric
-    default: 10.0
+    default: 10
     distribution:
       type: uniform
-      upper: 100.0
-      lower: 0.0e+00
-    description: |2
-
-      in percent algorithm, select the percent of shortest distances will be represented as links
+      lower: 0
+      upper: 100
+    description: 'in percent algorithm, select the percent of shortest distances will be represented as links'
   - id: graph.algorithm
     type: character
     default: MST
@@ -158,22 +150,20 @@ parameters:
     - MST
     - SST
     - IMC
-    description: "\nGraph building algorithm to be used: the Minimum Spanning Tree
-      \n(graph.algorithm=\"MST\"), the Maximum Similarity Spanning Tree \n(graph.algorithm=\"SST\")
-      and the Iterative Mutual Clustering Graph \n(graph.algorithm=\"IMC\").\n"
+    description: 'Graph building algorithm to be used; the Minimum Spanning Tree
+      \n(graph.algorithm="MST"), the Maximum Similarity Spanning Tree (graph.algorithm="SST")
+      and the Iterative Mutual Clustering Graph (graph.algorithm="IMC").'
   - id: graph.using.cells.clustering
     type: logical
     default: no
-    description: |2
-
-      If graph.using.cells.clustering=TRUE and graph.algorithm="MST" or graph.algorithm="MST", a precalculated clustering of cells is used. The clustering of cells is taken from SincellObject$cellsClustering as calculated by function sc_clusterObj().
+    description: If graph.using.cells.clustering=TRUE and graph.algorithm="MST" or graph.algorithm="MST", a precalculated clustering of cells is used. The clustering of cells is taken from SincellObject$cellsClustering as calculated by function sc_clusterObj().
   - id: k_imc
     type: integer
     default: 3
     distribution:
       type: uniform
-      upper: 99
       lower: 1
+      upper: 99
     description: If IMC algorithm is selected, the number of nearest neighbors used
       in the underlying K-Mutual Nearest Neighbour (K-MNN) algorithm is set to k.
   - id: pct_leaf_node_cutoff
@@ -181,8 +171,8 @@ parameters:
     default: 0.5
     distribution:
       type: uniform
-      upper: 0.8
       lower: 0.01
+      upper: 0.8
     description: Leaf nodes are iteratively removed until the percentage of leaf nodes
       is below the given cutoff. Removed nodes are projected to their closest neighbour.
       This is to constrain the number of milestones being created.
