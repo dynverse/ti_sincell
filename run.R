@@ -13,7 +13,7 @@ library(sincell)
 #   Load data                                                               ####
 
 expression <- as.matrix(task$expression)
-params <- task$params
+parameters <- task$parameters
 
 #   ____________________________________________________________________________
 #   Infer trajectory                                                        ####
@@ -26,30 +26,30 @@ SO <- sincell::sc_InitializingSincellObject(t(expression))
 
 # calculate distances
 SO <- SO %>% sincell::sc_distanceObj(
-  method = params$distance_method
+  method = parameters$distance_method
 )
 
 # perform dimred, if necessary
-if (params$dimred_method != "none") {
+if (parameters$dimred_method != "none") {
   SO <- SO %>% sincell::sc_DimensionalityReductionObj(
-    method = params$dimred_method
+    method = parameters$dimred_method
   )
 }
 
 # cluster cells
 SO <- SO %>% sincell::sc_clusterObj(
-  clust.method = params$clust.method,
-  mutual = params$mutual,
-  max.distance = params$max.distance,
-  shortest.rank.percent = params$shortest.rank.percent,
-  k = params$k
+  clust.method = parameters$clust.method,
+  mutual = parameters$mutual,
+  max.distance = parameters$max.distance,
+  shortest.rank.percent = parameters$shortest.rank.percent,
+  k = parameters$k
 )
 
 # build graph
 SO <- SO %>% sincell::sc_GraphBuilderObj(
-  graph.algorithm = params$graph.algorithm,
-  graph.using.cells.clustering = params$graph.using.cells.clustering,
-  k = params$k_imc
+  graph.algorithm = parameters$graph.algorithm,
+  graph.using.cells.clustering = parameters$graph.using.cells.clustering,
+  k = parameters$k_imc
 )
 
 # TIMING: done with method
@@ -68,7 +68,7 @@ cell_graph <- SO$cellstateHierarchy %>%
 gr <- SO$cellstateHierarchy
 deg <- igraph::degree(gr)
 prev_deg <- deg * 0
-while (length(deg) > 10 && mean(deg <= 1) > params$pct_leaf_node_cutoff && any(deg != prev_deg)) {
+while (length(deg) > 10 && mean(deg <= 1) > parameters$pct_leaf_node_cutoff && any(deg != prev_deg)) {
   del_v <- names(which(deg == 1))
   cat("Removing ", length(del_v), " vertices with degree 1\n", sep = "")
   gr <- igraph::delete_vertices(gr, del_v)
