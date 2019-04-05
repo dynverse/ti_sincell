@@ -1,23 +1,17 @@
-library(jsonlite)
-library(readr)
-library(dplyr)
-library(purrr)
+#!/usr/local/bin/Rscript
 
-library(sincell)
+task <- dyncli::main()
+
+library(dplyr, warn.conflicts = FALSE)
+library(purrr, warn.conflicts = FALSE)
+
+library(sincell, warn.conflicts = FALSE)
 
 #   ____________________________________________________________________________
 #   Load data                                                               ####
 
-data <- read_rds("/ti/input/data.rds")
-params <- jsonlite::read_json("/ti/input/params.json")
-
-#' @examples
-#' data <- dyntoy::generate_dataset(id = "test", num_cells = 300, num_features = 300, model = "linear") %>% c(., .$prior_information)
-#' params <- yaml::read_yaml("containers/sincell/definition.yml")$parameters %>%
-#'   {.[names(.) != "forbidden"]} %>%
-#'   map(~ .$default)
-
-expression <- data$expression
+expression <- as.matrix(task$expression)
+parameters <- task$parameters
 
 #   ____________________________________________________________________________
 #   Infer trajectory                                                        ####
@@ -30,30 +24,30 @@ SO <- sincell::sc_InitializingSincellObject(t(expression))
 
 # calculate distances
 SO <- SO %>% sincell::sc_distanceObj(
-  method = params$distance_method
+  method = parameters$distance_method
 )
 
 # perform dimred, if necessary
-if (params$dimred_method != "none") {
+if (parameters$dimred_method != "none") {
   SO <- SO %>% sincell::sc_DimensionalityReductionObj(
-    method = params$dimred_method
+    method = parameters$dimred_method
   )
 }
 
 # cluster cells
 SO <- SO %>% sincell::sc_clusterObj(
-  clust.method = params$clust.method,
-  mutual = params$mutual,
-  max.distance = params$max.distance,
-  shortest.rank.percent = params$shortest.rank.percent,
-  k = params$k
+  clust.method = parameters$clust.method,
+  mutual = parameters$mutual,
+  max.distance = parameters$max.distance,
+  shortest.rank.percent = parameters$shortest.rank.percent,
+  k = parameters$k
 )
 
 # build graph
 SO <- SO %>% sincell::sc_GraphBuilderObj(
-  graph.algorithm = params$graph.algorithm,
-  graph.using.cells.clustering = params$graph.using.cells.clustering,
-  k = params$k_imc
+  graph.algorithm = parameters$graph.algorithm,
+  graph.using.cells.clustering = parameters$graph.using.cells.clustering,
+  k = parameters$k_imc
 )
 
 # TIMING: done with method
@@ -72,7 +66,7 @@ cell_graph <- SO$cellstateHierarchy %>%
 gr <- SO$cellstateHierarchy
 deg <- igraph::degree(gr)
 prev_deg <- deg * 0
-while (length(deg) > 10 && mean(deg <= 1) > params$pct_leaf_node_cutoff && any(deg != prev_deg)) {
+while (length(deg) > 10 && mean(deg <= 1) > parameters$pct_leaf_node_cutoff && any(deg != prev_deg)) {
   del_v <- names(which(deg == 1))
   cat("Removing ", length(del_v), " vertices with degree 1\n", sep = "")
   gr <- igraph::delete_vertices(gr, del_v)
@@ -81,15 +75,11 @@ while (length(deg) > 10 && mean(deg <= 1) > params$pct_leaf_node_cutoff && any(d
 }
 to_keep <- setNames(rownames(expression) %in% names(igraph::V(gr)), rownames(expression))
 
-# return output
-output <- lst(
-  cell_ids = rownames(expression),
-  cell_graph,
-  to_keep,
-  timings = checkpoints
-)
-
 #   ____________________________________________________________________________
 #   Save output                                                             ####
 
-write_rds(output, "/ti/output/output.rds")
+output <- dynwrap::wrap_data(cell_ids = rownames(expression)) %>%
+  dynwrap::add_cell_graph(cell_graph = cell_graph, to_keep = to_keep) %>%
+  dynwrap::add_timings(timings = checkpoints)
+
+dyncli::write_output(output, task$output)
